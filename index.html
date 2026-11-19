@@ -27,6 +27,12 @@
   .b-no{background:#F0F0EE;color:var(--sub)} .b-wait{background:var(--nb);color:var(--navy)} .b-ok{background:var(--grn-bg);color:var(--grn)} .b-re{background:var(--red-bg);color:var(--red)}
   input[type=text],input[type=email]{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit}
   input[type=file]{width:100%;font-size:14px;margin:4px 0}
+  .drop{display:block;position:relative;border:1.5px dashed #C7CCE0;border-radius:12px;padding:18px 14px;text-align:center;cursor:pointer;background:#FAFBFD;margin-top:4px}
+  .drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0}
+  .drop-t{display:block;font-size:14px;color:var(--sub)}
+  .drop-f{display:block;font-size:13px;color:var(--navy);font-weight:600;margin-top:6px;word-break:break-all}
+  .drop.over{border-color:var(--navy);background:var(--nb)}
+  .drop.has{border-style:solid;border-color:var(--navy)}
   .ch{display:flex;gap:8px;margin-bottom:10px}
   .ch label{flex:1;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;font-size:14px;cursor:pointer}
   .ch label.on{border-color:var(--navy);background:var(--nb);color:var(--navy);font-weight:700}
@@ -81,7 +87,34 @@ function render(){
   h += ME.items.map(itemHtml).join('');
   h += '<p class="note">주민등록번호·계좌번호가 포함된 서류(주민등록등본, 통장 사본, 신분증 사본)는 이 링크로 올리지 마시고, 출력물 또는 PDF 파일로 경영지원팀 담당자에게 직접 제출해 주십시오.<br>올려 주신 파일은 경영지원팀만 열람할 수 있는 곳에 보관됩니다. 이 링크는 ' + esc(ME.name) + '님 전용이므로 다른 분께 전달하지 말아 주십시오.</p>';
   a.innerHTML = h;
+  bindDrops();
 }
+// ===== 끌어서 넣기 (노트북·PC) =====
+var TOUCH = ('ontouchstart' in window) && !window.matchMedia('(pointer:fine)').matches;
+function dropName(i){
+  var inp = document.getElementById('in' + i), f = inp && inp.files && inp.files[0], el = document.getElementById('fn' + i);
+  if(el) el.textContent = f ? '선택한 파일: ' + f.name + ' (' + (f.size < 1024 * 1024 ? Math.max(1, Math.round(f.size / 1024)) + 'KB' : (f.size / 1024 / 1024).toFixed(1) + 'MB') + ')' : '';
+  var box = el && el.parentNode; if(box) box.classList.toggle('has', !!f);
+}
+function bindDrops(){
+  var boxes = document.querySelectorAll('.drop');
+  for(var k = 0; k < boxes.length; k++) (function(box){
+    var i = box.getAttribute('data-i');
+    box.addEventListener('dragover', function(e){ e.preventDefault(); box.classList.add('over'); });
+    box.addEventListener('dragleave', function(){ box.classList.remove('over'); });
+    box.addEventListener('drop', function(e){
+      e.preventDefault(); box.classList.remove('over');
+      var files = e.dataTransfer && e.dataTransfer.files;
+      if(!files || !files.length) return;
+      var inp = document.getElementById('in' + i);
+      try { inp.files = files; } catch(err){ toast('끌어서 넣기가 안 되는 브라우저입니다. 눌러서 선택해 주십시오'); return; }
+      dropName(i);
+    });
+  })(boxes[k]);
+}
+// 상자 밖에 잘못 떨어뜨려도 브라우저가 파일을 열어 버리지 않게
+window.addEventListener('dragover', function(e){ e.preventDefault(); });
+window.addEventListener('drop', function(e){ e.preventDefault(); });
 function itemHtml(x, i){
   var st = STATE_TXT[x.state] || STATE_TXT[''];
   var h = '<div class="card"><div class="it-h"><b>' + esc(x.label) + '</b><span class="bd ' + st[1] + '">' + st[0] + '</span></div><div class="help">' + esc(x.help || '') + '</div>';
@@ -104,7 +137,8 @@ function itemHtml(x, i){
     }
     if(mode === '회사 촬영') h += '<button class="btn' + (again ? ' ghost' : '') + '" onclick="send(' + i + ', this)">회사에서 촬영하겠습니다</button>';
     else if(mode){
-      h += '<input type="file" id="in' + i + '" accept="' + (x.type === 'photo' ? 'image/*' : '.pdf,.doc,.docx,.hwp,.hwpx,image/*') + '">';
+      h += '<label class="drop" data-i="' + i + '"><input type="file" id="in' + i + '" accept="' + (x.type === 'photo' ? 'image/*' : '.pdf,.doc,.docx,.hwp,.hwpx,image/*') + '" onchange="dropName(' + i + ')">' +
+        '<span class="drop-t">' + (TOUCH ? '눌러서 파일 선택' : '파일을 여기로 끌어다 놓거나, 눌러서 선택해 주십시오') + '</span><span class="drop-f" id="fn' + i + '"></span></label>';
       h += '<button class="btn' + (again ? ' ghost' : '') + '" onclick="send(' + i + ', this)">' + (again ? '다른 파일로 다시 제출' : '파일 올리기') + '</button>';
     }
   }
