@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>경영지원팀 · 전자 문서 확인</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{--navy:#101A46;--bg:#F7F7F5;--line:#E5E5E5;--sub:#6B6F7B;--faint:#9A9DA6;--grn:#1E7A46;--grn-bg:#E9F5EE;--red:#B42318;--red-bg:#FDECEA;--amb:#7A4E00;--amb-bg:#FFF4DB;--nb:#EEF0F7}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font-family:Pretendard,-apple-system,'Apple SD Gothic Neo',sans-serif;color:#1F2330;font-size:15px;line-height:1.55}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 16px 56px}
+  .brand{font-size:13px;font-weight:700;color:var(--navy);letter-spacing:.02em}
+  h1{font-size:22px;color:var(--navy);margin:6px 0 4px}
+  .sub{color:var(--sub);font-size:13px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:12px}
+  .card h3{margin:0 0 6px;font-size:16px;color:var(--navy)}
+  .test{background:var(--amb-bg);color:var(--amb);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:12px}
+  .steps{display:flex;gap:6px;margin-top:12px}
+  .steps span{flex:1;text-align:center;font-size:12px;padding:6px 4px;border-radius:8px;background:#EEEEEC;color:var(--sub)}
+  .steps span.on{background:var(--navy);color:#fff;font-weight:700}
+  .steps span.ok{background:var(--nb);color:var(--navy)}
+  /* 통지서 본문 */
+  .doc{font-size:14px}
+  .d-t{font-size:19px;color:var(--navy);text-align:center;margin:4px 0 0}
+  .d-s{font-size:12.5px;color:var(--sub);text-align:center;margin-bottom:12px}
+  .d-p{margin:8px 0}
+  .d-p.c{text-align:center} .d-p.r{text-align:right} .d-p.b{font-weight:700}
+  .d-tb{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  .d-tb td{border:1px solid #D5D7DE;padding:6px 7px;vertical-align:top;word-break:keep-all}
+  .d-tb td.h{background:#F2F3F7;font-weight:700;white-space:nowrap}
+  .btn{display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:10px;background:var(--navy);color:#fff;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+  .btn:disabled{opacity:.5}
+  .btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}
+  .btn.sm{display:inline-block;width:auto;padding:9px 14px;font-size:14px;margin-top:8px}
+  .pr{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .pr input[type=date]{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit}
+  .pr select{font:inherit;font-size:15px;padding:10px 8px;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .pr .x{border:0;background:none;color:var(--faint);font-size:22px;width:40px;height:44px;cursor:pointer}
+  .tot{margin-top:10px;font-size:14px;color:var(--sub)}
+  .tot b{color:var(--navy)}
+  .pad{position:relative;border:1.5px dashed #C7CCE0;border-radius:12px;background:#fff;margin-top:8px;touch-action:none}
+  .pad canvas{display:block;width:100%;height:180px;touch-action:none;cursor:crosshair}
+  .pad em{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#C7CCE0;font-style:normal;font-size:15px;pointer-events:none}
+  input[type=text]{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+  .ck{display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:14px}
+  .ck input{width:20px;height:20px;margin-top:1px;flex:none}
+  .msg{border-radius:10px;padding:14px;font-size:14px}
+  .msg.bad{background:var(--red-bg);color:var(--red)}
+  .msg.ok{background:var(--grn-bg);color:var(--grn)}
+  .kv{font-size:14px;margin-top:8px}
+  .kv div{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid #F0F0EE}
+  .kv span{color:var(--sub);min-width:84px}
+  .note{font-size:12px;color:var(--faint);margin-top:14px;line-height:1.6}
+  .load{padding:60px 0;text-align:center;color:var(--sub)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;display:none;z-index:9;max-width:90%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">CULTURES ONE · 경영지원팀</div>
+  <div id="app"><div class="load">불러오는 중…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+// 자료를 주고받는 곳: 경영지원 허브 Apps Script의 「직원 링크」 배포 주소 (실행: 나, 액세스: 모든 사용자)
+var API = 'https://script.google.com/macros/s/AKfycby5F1k5nU2oWfbkNcUpL59ahZhYdd2JIaqgPzlzLHor2DWsmenQbIUsDGLtON4BuSTAbA/exec';
+// 문서 번호는 주소의 # 뒤에 있음 (# 뒤는 서버로 전송되지 않음)
+var ID = (function(){ var m = (location.hash + '&' + location.search).match(/[#?&]n=(n[a-f0-9]{40,})/i); return m ? m[1].toLowerCase() : ''; })();
+function api(body){
+  body.n = ID;
+  return fetch(API, { method: 'POST', body: JSON.stringify(body), headers: { 'Content-Type': 'text/plain;charset=utf-8' }, redirect: 'follow', credentials: 'omit' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){ var j; try { j = JSON.parse(t); } catch(e){ throw new Error('서버 응답을 읽지 못했습니다. 잠시 후 다시 시도해 주십시오.'); } if(j.error) throw new Error(j.error); return j; });
+}
+var D = null, PLAN = [], INK = 0, PDF = null;
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(t){ var e = document.getElementById('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function(){ e.style.display = 'none'; }, 2400); }
+function kd(s){ var p = String(s || '').slice(0, 10).split('-'); return p.length === 3 ? (+p[0]) + '년 ' + (+p[1]) + '월 ' + (+p[2]) + '일' : ''; }
+function kt(s){ s = String(s || ''); return s ? kd(s) + ' ' + s.slice(11, 16) : ''; }
+function today(){ var d = new Date(), z = function(n){ return (n < 10 ? '0' : '') + n; }; return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+function render(){
+  var a = document.getElementById('app');
+  if(!D || D.notFound){
+    a.innerHTML = '<h1>링크를 확인해 주십시오</h1><div class="card"><div class="msg bad">링크가 올바르지 않거나 사용이 중지되었습니다.<br>경영지원팀에 문의해 주십시오.</div></div>';
+    return;
+  }
+  var step = D.signed ? 3 : D.confirmed ? 2 : 1;
+  var h = '<h1>' + esc(D.title) + '</h1><div class="sub">' + esc(D.name) + '님 · ' + esc(D.company) + '</div>';
+  if(D.test) h += '<div class="test">시험용 문서입니다. 실제 통지로서 효력이 없습니다.</div>';
+  h += '<div class="steps"><span class="' + (step === 1 ? 'on' : 'ok') + '">1. 내용 확인</span><span class="' + (step === 2 ? 'on' : step > 2 ? 'ok' : '') + '">2. ' + (D.needPlan ? '사용 계획·서명' : '서명') + '</span><span class="' + (step === 3 ? 'on' : '') + '">3. 제출 완료</span></div>';
+  h += '<div class="card doc">' + D.html + '</div>';
+  if(step === 1){
+    h += '<div class="card"><h3>통지 내용을 끝까지 읽어 주십시오</h3><div class="sub">확인 버튼을 누른 시각이 기록됩니다.</div>' +
+      '<button class="btn" id="cfm" onclick="confirmDoc()">통지 내용을 확인했습니다</button></div>';
+  } else if(step === 2){
+    if(D.needPlan){
+      if(!PLAN.length) PLAN = [{ date: '', half: '종일' }];
+      h += '<div class="card"><h3>연차 사용 예정일</h3><div class="sub">남은 연차 ' + esc(D.remain) + '일을 ' + kd(D.expire) + ' 전까지 사용할 날짜를 골라 주십시오.</div>' +
+        '<div id="plan">' + planHtml() + '</div><button class="btn sm ghost" onclick="addDay()">+ 날짜 추가</button><div class="tot" id="tot"></div></div>';
+    } else {
+      h += '<div class="card"><h3>회사 지정 사용일</h3><div class="kv">' + (D.designated || []).map(function(s, i){ return '<div><span>' + (i + 1) + '</span>' + kd(s) + '</div>'; }).join('') + '</div></div>';
+    }
+    h += '<div class="card"><h3>전자서명</h3><div class="sub">아래 칸에 손가락이나 마우스로 서명해 주십시오.</div>' +
+      '<div class="pad"><canvas id="cv"></canvas><em id="cvh">여기에 서명</em></div><button class="btn sm ghost" onclick="clearPad()">다시 그리기</button>' +
+      '<input type="text" id="typed" placeholder="이름을 입력해 주십시오 (' + esc(D.name) + ')" autocomplete="off">' +
+      '<label class="ck"><input type="checkbox" id="agree">위 통지 내용을 확인하였으며, 이 서명이 본인의 전자서명임에 동의합니다.</label>' +
+      '<button class="btn" id="sgn" onclick="signDoc()">서명하고 제출</button>' +
+      '<div class="note">제출한 뒤에는 내용을 고칠 수 없습니다. 제출하면 서명이 들어간 문서(PDF)를 받으실 수 있습니다.</div></div>';
+  } else {
+    h += '<div class="card"><div class="msg ok">서명하여 제출하셨습니다. 감사합니다.</div><div class="kv">' +
+      '<div><span>열람</span>' + kt(D.viewed) + '</div><div><span>확인</span>' + kt(D.confirmed) + '</div><div><span>서명</span>' + kt(D.signed) + '</div>' +
+      (D.needPlan ? '<div><span>사용 계획</span>' + esc(D.plan) + '</div>' : '') + '</div>' +
+      '<button class="btn" id="dl" onclick="downloadPdf()">서명한 문서(PDF) 내려받기</button></div>';
+  }
+  h += '<p class="note">이 링크는 ' + esc(D.name) + '님 전용이므로 다른 분께 전달하지 말아 주십시오. 문의 사항은 경영지원팀으로 연락해 주십시오.</p>';
+  a.innerHTML = h;
+  if(step === 2){ setupPad(); if(D.needPlan) updTot(); }
+}
+// ----- 사용 계획 -----
+function planHtml(){
+  var mn = today(), mx = D.expire || '';
+  return PLAN.map(function(p, i){
+    return '<div class="pr"><input type="date" min="' + mn + '" max="' + mx + '" value="' + esc(p.date) + '" onchange="PLAN[' + i + '].date=this.value;updTot()">' +
+      '<select onchange="PLAN[' + i + '].half=this.value;updTot()">' + ['종일', '오전반차', '오후반차'].map(function(o){ return '<option' + (p.half === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>' +
+      (PLAN.length > 1 ? '<button class="x" onclick="PLAN.splice(' + i + ',1);document.getElementById(\'plan\').innerHTML=planHtml();updTot()" aria-label="빼기">×</button>' : '') + '</div>';
+  }).join('');
+}
+function addDay(){ PLAN.push({ date: '', half: '종일' }); document.getElementById('plan').innerHTML = planHtml(); updTot(); }
+function planDays(){ return PLAN.filter(function(p){ return p.date; }).reduce(function(a, p){ return a + (p.half === '종일' ? 1 : 0.5); }, 0); }
+function updTot(){
+  var n = planDays(), r = Number(D.remain) || 0, el = document.getElementById('tot');
+  el.innerHTML = '고른 날 <b>' + n + '일</b> / 남은 연차 ' + r + '일' + (n && n < r ? ' · 정하지 않은 ' + (r - n) + '일은 회사가 사용일을 지정할 수 있습니다.' : '');
+}
+// ----- 서명 칸 (손가락·마우스) -----
+var CV = null, CX = null, DRAW = false;
+function setupPad(){
+  CV = document.getElementById('cv'); if(!CV) return;
+  var r = CV.getBoundingClientRect(), k = Math.min(window.devicePixelRatio || 1, 2);
+  CV.width = Math.round(r.width * k); CV.height = Math.round(180 * k);
+  CX = CV.getContext('2d'); CX.scale(k, k);
+  CX.fillStyle = '#fff'; CX.fillRect(0, 0, r.width, 180);
+  CX.lineWidth = 2.6; CX.lineCap = 'round'; CX.lineJoin = 'round'; CX.strokeStyle = '#101A46';
+  INK = 0;
+  var pos = function(e){ var b = CV.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
+  CV.onpointerdown = function(e){ e.preventDefault(); DRAW = true; CV.setPointerCapture && CV.setPointerCapture(e.pointerId); var p = pos(e); CX.beginPath(); CX.moveTo(p.x, p.y); document.getElementById('cvh').style.display = 'none'; };
+  CV.onpointermove = function(e){ if(!DRAW) return; e.preventDefault(); var p = pos(e); CX.lineTo(p.x, p.y); CX.stroke(); INK++; };
+  CV.onpointerup = CV.onpointercancel = function(){ DRAW = false; };
+}
+function clearPad(){ setupPad(); document.getElementById('cvh').style.display = ''; }
+// ----- 서버 -----
+function confirmDoc(){
+  var b = document.getElementById('cfm'); b.disabled = true; b.textContent = '기록하는 중입니다…';
+  api({ action: 'docConfirm' }).then(function(r){ D = r; render(); window.scrollTo(0, document.querySelector('.doc').offsetTop + document.querySelector('.doc').offsetHeight - 40); toast('확인 시각이 기록되었습니다'); })
+    .catch(function(e){ b.disabled = false; b.textContent = '통지 내용을 확인했습니다'; toast(e.message); });
+}
+function signDoc(){
+  var plan = PLAN.filter(function(p){ return p.date; });
+  if(D.needPlan && !plan.length){ toast('사용 예정일을 하루 이상 골라 주십시오'); return; }
+  if(D.needPlan && plan.some(function(p){ return D.expire && p.date > D.expire; })){ toast('사용 예정일은 ' + kd(D.expire) + ' 이전이어야 합니다'); return; }
+  if(INK < 15){ toast('서명 칸에 서명해 주십시오'); return; }
+  var typed = (document.getElementById('typed').value || '').trim();
+  if(typed.replace(/\s/g, '') !== String(D.name).replace(/\s/g, '')){ toast('이름을 정확히 입력해 주십시오'); return; }
+  if(!document.getElementById('agree').checked){ toast('전자서명 동의에 체크해 주십시오'); return; }
+  if(!confirm('제출한 뒤에는 고칠 수 없습니다. 제출하시겠습니까?')) return;
+  var b = document.getElementById('sgn'); b.disabled = true; b.textContent = '제출하는 중입니다… (10초 정도)';
+  api({ action: 'docSign', plan: plan, sig: CV.toDataURL('image/png'), typed: typed })
+    .then(function(r){ PDF = r.pdf ? { data: r.pdf, name: r.pdfName } : null; D = r; render(); window.scrollTo(0, 0); toast('제출되었습니다'); })
+    .catch(function(e){ b.disabled = false; b.textContent = '서명하고 제출'; toast('제출하지 못했습니다: ' + e.message); });
+}
+function savePdf(p){
+  var bin = atob(p.data), arr = new Uint8Array(bin.length);
+  for(var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  var url = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' })), a = document.createElement('a');
+  a.href = url; a.download = p.name || '전자서명.pdf'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 30000);
+}
+function downloadPdf(){
+  if(PDF) return savePdf(PDF);
+  var b = document.getElementById('dl'); b.disabled = true; b.textContent = '불러오는 중입니다…';
+  api({ action: 'docPdf' }).then(function(r){ PDF = { data: r.pdf, name: r.pdfName }; b.disabled = false; b.textContent = '서명한 문서(PDF) 내려받기'; savePdf(PDF); })
+    .catch(function(e){ b.disabled = false; b.textContent = '서명한 문서(PDF) 내려받기'; toast(e.message); });
+}
+window.addEventListener('hashchange', function(){ location.reload(); });
+window.addEventListener('resize', function(){ if(CV && INK === 0) setupPad(); });
+if(!ID){ D = { notFound: true }; render(); }
+else api({ action: 'docGet' }).then(function(r){ D = r; render(); }).catch(function(e){ document.getElementById('app').innerHTML = '<div class="card"><div class="msg bad">' + esc(e.message || '불러오지 못했습니다. 잠시 후 다시 열어 주십시오.') + '</div></div>'; });
+</script>
+</body>
+</html>

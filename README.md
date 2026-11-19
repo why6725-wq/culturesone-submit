@@ -6,3 +6,7 @@
 - 자료는 경영지원 허브(Apps Script, 비공개)로 보내져 구글시트·비공개 구글 드라이브에만 저장됩니다.
 - 비밀코드는 주소의 `#` 뒤에 있어 이 사이트(GitHub) 서버로 전송되지 않습니다.
 - 코드 관리: 비공개 저장소 why6725-wq/culturesone-admin-hub 의 CLAUDE.md 참고.
+
+## sign.html
+전자 문서(연차 촉진 통지 등) 확인·서명 화면. 주소: https://why6725-wq.github.io/culturesone-submit/sign.html#n=문서번호
+직원 데이터는 이 저장소에 없고, 경영지원 허브 Apps Script(직원 링크 배포)에서 불러옵니다.
